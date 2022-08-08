@@ -145,3 +145,50 @@ JwtClaim verifyJwtHS256Signature(String token, String hmacKey,
     throw JwtException.invalidToken;
   }
 }
+
+JwtClaim validateJwtHS256Signature(String token,
+    {JOSEHeaderCheck? headerCheck = defaultJWTHeaderCheck,
+    bool defaultIatExp = true,
+    Duration maxAge = JwtClaim.defaultMaxAge}) {
+  try {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw JwtException.invalidToken;
+    }
+
+    // Decode header and payload
+    final headerString = B64urlEncRfc7515.decodeUtf8(parts[0]);
+    // Check header
+    final dynamic header = json.decode(headerString);
+    if (header is Map) {
+      // Perform any custom checks on the header
+      if (headerCheck != null &&
+          !headerCheck(header.cast<String, dynamic?>())) {
+        throw JwtException.invalidToken;
+      }
+    } else {
+      throw JwtException.headerNotJson;
+    }
+
+    // Verify signature: calculate signature and compare to token's signature
+    final data = '${parts[0]}.${parts[1]}';
+    final tokenSig = B64urlEncRfc7515.decode(parts[2]);
+    // Signature does not match calculated
+
+    // Convert payload into a claim set
+    final payloadString = B64urlEncRfc7515.decodeUtf8(parts[1]);
+    final dynamic payload = json.decode(payloadString);
+    if (payload is Map) {
+      return JwtClaim.fromMap(payload.cast(),
+          defaultIatExp: defaultIatExp, maxAge: maxAge);
+    } else {
+      throw JwtException.payloadNotJson; // is JSON, but not a JSON object
+    }
+  } on FormatException {
+    // Can be caused by:
+    //   - header or payload parts are not Base64url Encoding
+    //   - bytes in the header or payload are not proper UTF-8
+    //   - string in header or payload cannot be parsed into JSON
+    throw JwtException.invalidToken;
+  }
+}
