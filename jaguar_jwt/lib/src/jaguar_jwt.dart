@@ -100,6 +100,7 @@ JwtClaim verifyJwtHS256Signature(String token, String hmacKey,
 
     final parts = token.split('.');
     if (parts.length != 3) {
+      log("parts.length != 3");
       throw JwtException.invalidToken;
     }
 
@@ -111,6 +112,7 @@ JwtClaim verifyJwtHS256Signature(String token, String hmacKey,
       // Perform any custom checks on the header
       if (headerCheck != null &&
           !headerCheck(header.cast<String, dynamic?>())) {
+        log("invalid header");
         throw JwtException.invalidToken;
       }
 
@@ -143,6 +145,7 @@ JwtClaim verifyJwtHS256Signature(String token, String hmacKey,
     //   - header or payload parts are not Base64url Encoding
     //   - bytes in the header or payload are not proper UTF-8
     //   - string in header or payload cannot be parsed into JSON
+    log("FormatException");
     throw JwtException.invalidToken;
   }
 }
