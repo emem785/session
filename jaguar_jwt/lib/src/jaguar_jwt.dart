@@ -192,6 +192,7 @@ JwtClaim validateJwtHS256Signature(String token,
     //   - header or payload parts are not Base64url Encoding
     //   - bytes in the header or payload are not proper UTF-8
     //   - string in header or payload cannot be parsed into JSON
+    log("format");
     throw JwtException.invalidToken;
   }
 }
