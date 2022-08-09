@@ -7,6 +7,7 @@ library jaguar_jwt.src;
 
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:crypto/crypto.dart';
 import 'package:jaguar_jwt/src/secure_compare.dart';
@@ -153,6 +154,7 @@ JwtClaim validateJwtHS256Signature(String token,
   try {
     final parts = token.split('.');
     if (parts.length != 3) {
+      log("parts");
       throw JwtException.invalidToken;
     }
 
@@ -164,6 +166,7 @@ JwtClaim validateJwtHS256Signature(String token,
       // Perform any custom checks on the header
       if (headerCheck != null &&
           !headerCheck(header.cast<String, dynamic?>())) {
+        log("map");
         throw JwtException.invalidToken;
       }
     } else {
